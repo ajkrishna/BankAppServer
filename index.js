@@ -55,14 +55,18 @@ app.post('/login',(req,res)=>{
     //console.log(res.send(result.message));
 });
 app.post('/deposit',authMiddleware, (req,res)=>{
-    const result=dataService.deposit(req.body.acno,req.body.pwd,req.body.amount)
-    res.status(result.statusCode).json(result);
-    //console.log(res.send(result.message));
+    dataService.deposit(req.body.acno,req.body.pwd,req.body.amount)
+    .then(result=>{
+        res.status(result.statusCode).json(result)
+      // res.status(200).send("success");
+       })
 });
 app.post('/withdraw',authMiddleware, (req,res)=>{
-    const result=dataService.withdraw(req.body.acno,req.body.pwd,req.body.amount)
-    res.status(result.statusCode).json(result);
-    //console.log(res.send(result.message));
+    dataService.withdraw(req.body.acno,req.body.pwd,req.body.amount)
+    .then(result=>{
+        res.status(result.statusCode).json(result)
+      // res.status(200).send("success");
+       })
 });
 //PUT-UPDATE/MODIFY WHOLE
 app.put('/',(req,res)=>{

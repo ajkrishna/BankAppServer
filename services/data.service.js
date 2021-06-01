@@ -57,89 +57,58 @@ const login=(req,accno,password,username)=>
                     status:false,
                   message:"Invalid credentials"}
                   }
-                  
-
           })
-          let users=accountDetails;
-                  if(acno in users)
-                  {
-                  if(uname==users[acno]["username"]&&pwd==users[acno]["password"])
-                  {req.session.currentUser=users[acno]["username"];
-                  return{ 
-                      statusCode:200,
-                      status:true,
-                    message:"Login successful"}}
-                  else
-                  {
-                   return {statusCode:422,
-                    status:false,
-                  message:"Incorrect username or password"}}
-                  }
-                  else
-                  { 
-                  return {statusCode:422,
-                    status:false,
-                  message:"Invalid Account No"}}
         }
-const deposit=(acno,pwd,amount)=>
+const deposit=(acno,password,amount)=>
         {
           
           var amt=parseInt(amount);
-          let user=accountDetails;
-          if(acno in user)
-                  {
-                  if(pwd==user[acno]["password"])
-                  {user[acno]["balance"]+=amt;
-                    return{ 
-                      statusCode:200,
-                      status:true,
-                      balance:user[acno]["balance"],
-                    message:amount+" is credited and new balance is "+user[acno]["balance"]} }
-                  else
-                  {
-                   return {statusCode:422,
-                    status:false,
-                  message:"Incorrect password"}}
-                  }
-                  else
-                  { 
-                  return {statusCode:422,
-                    status:false,
-                  message:"Invalid Account No"}
-                  }
+          return db.User.findOne({acno,password})
+          .then(user=>{
+            if(!user){
+              console.log(user);
+              return {statusCode:422,
+                status:false,
+              message:"Invalid credentials"}
+            }
+            else{
+              console.log(user);
+            user.balance+=amt;
+            user.save();
+            return{ 
+              statusCode:200,
+              status:true,
+              balance:user.balance,
+            message:amt+" is credited and new balance is "+user.balance} 
+          }
+          })
         }
-const withdraw=(acno,pwd,amount)=>
+const withdraw=(acno,password,amount)=>
         {
           var amt=parseInt(amount);
-          let user=accountDetails;
-          if(acno in user)
-                  {
-                  if(pwd==user[acno]["password"])
-                    {
-                      if(user[acno]["balance"]>amt)
-                        {user[acno]["balance"]-=amt;
-                          return{ 
-                            statusCode:200,
-                            status:true,
-                            balance:user[acno]["balance"],
-                          message:amount+" is debited and new balance is "+user[acno]["balance"]}
-                        }
-                      else
-                      return {statusCode:422,
-                        status:false,
-                      message:"Insufficient balance"}
-                    }
-                  else
-                  {
-                   return {statusCode:422,
-                    status:false,
-                  message:"Incorrect password"}}
-                  }
-          else
-                  {
-                  return {statusCode:422,
-                    status:false,
-                  message:"Invalid Account No"}}
+          return db.User.findOne({acno,password})
+          .then(user=>{
+            if(!user){
+              return {statusCode:422,
+                status:false,
+              message:"Invalid credentials"}
+            }
+            else{
+            if(user.balance<amt){
+              return {statusCode:422,
+                status:false,
+              message:"Insufficient balance"}
+              }
+            else{
+              user.balance-=amt;
+              user.save();
+              return{ 
+                statusCode:200,
+                status:true,
+                balance:user.balance,
+              message:amt+" is debited and new balance is "+user.balance}
+            }}
+          })
         }
 
 module.exports={
