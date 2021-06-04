@@ -45,21 +45,23 @@ const login=(req,accno,password,username)=>
             console.log(user);
             if(user)
                   {
-                    req.session.currentUser=user;
+                    req.session.currentUser=user.acno;
                   return{ 
                       statusCode:200,
                       status:true,
-                    message:"Login successful"}
+                    message:"Login successful"
+                  }
                   }
                   else
                   {
                    return {statusCode:422,
                     status:false,
-                  message:"Invalid credentials"}
+                  message:"Invalid credentials",
+                name:user.username}
                   }
           })
         }
-const deposit=(acno,password,amount)=>
+const deposit=(req,acno,password,amount)=>
         {
           
           var amt=parseInt(amount);
@@ -71,8 +73,12 @@ const deposit=(acno,password,amount)=>
                 status:false,
               message:"Invalid credentials"}
             }
-            else{
-              console.log(user);
+            if(req.session.currentUser!=acno){
+              return {statusCode:422,
+                status:false,
+              message:"Operation denied"
+            }}
+            
             user.balance+=amt;
             user.save();
             return{ 
@@ -80,10 +86,10 @@ const deposit=(acno,password,amount)=>
               status:true,
               balance:user.balance,
             message:amt+" is credited and new balance is "+user.balance} 
-          }
+          
           })
         }
-const withdraw=(acno,password,amount)=>
+const withdraw=(req,acno,password,amount)=>
         {
           var amt=parseInt(amount);
           return db.User.findOne({acno,password})
@@ -93,13 +99,19 @@ const withdraw=(acno,password,amount)=>
                 status:false,
               message:"Invalid credentials"}
             }
-            else{
+            if(req.session.currentUser!=acno){
+              return {statusCode:422,
+                status:false,
+              message:"Operation denied"
+            }}
+            
             if(user.balance<amt){
               return {statusCode:422,
                 status:false,
               message:"Insufficient balance"}
-              }
-            else{
+            }
+              
+            
               user.balance-=amt;
               user.save();
               return{ 
@@ -107,7 +119,7 @@ const withdraw=(acno,password,amount)=>
                 status:true,
                 balance:user.balance,
               message:amt+" is debited and new balance is "+user.balance}
-            }}
+            
           })
         }
 

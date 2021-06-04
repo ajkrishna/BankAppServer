@@ -1,7 +1,13 @@
 const exp=require('express');
-const session=require('express-session')
+const session=require('express-session');
+const cors=require('cors');
 const dataService=require('./services/data.service')
 const app=exp();
+
+app.use(cors({
+    origin:'http://localhost:4200',
+    credentials:true
+}))
 
 app.use(session({
     secret:'randomsecurestring',
@@ -55,14 +61,14 @@ app.post('/login',(req,res)=>{
     //console.log(res.send(result.message));
 });
 app.post('/deposit',authMiddleware, (req,res)=>{
-    dataService.deposit(req.body.acno,req.body.pwd,req.body.amount)
+    dataService.deposit(req,req.body.acno,req.body.pwd,req.body.amount)
     .then(result=>{
         res.status(result.statusCode).json(result)
       // res.status(200).send("success");
        })
 });
 app.post('/withdraw',authMiddleware, (req,res)=>{
-    dataService.withdraw(req.body.acno,req.body.pwd,req.body.amount)
+    dataService.withdraw(req,req.body.acno,req.body.pwd,req.body.amount)
     .then(result=>{
         res.status(result.statusCode).json(result)
       // res.status(200).send("success");
