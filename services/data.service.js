@@ -49,7 +49,9 @@ const login=(req,accno,password,username)=>
                   return{ 
                       statusCode:200,
                       status:true,
-                    message:"Login successful"
+                    message:"Login successful",
+                    name:user.username,
+                    acno:user.acno
                   }
                   }
                   else
@@ -57,7 +59,7 @@ const login=(req,accno,password,username)=>
                    return {statusCode:422,
                     status:false,
                   message:"Invalid credentials",
-                name:user.username}
+                }
                   }
           })
         }
@@ -123,9 +125,26 @@ const withdraw=(req,acno,password,amount)=>
           })
         }
 
+const deleteAccDetails=(acno)=>{
+  return db.User.deleteOne({
+    acno:acno
+  }).then(user=>{
+    if(!user){
+      return{statusCode:422,
+      status:false,
+      message:"Operation Failed"}
+    }
+    return{statusCode:200,
+      status:true,
+      message:"Account number "+acno+" deleted successfully"}
+
+  })
+}
+
 module.exports={
     reg,
     login,
     deposit,
-    withdraw
+    withdraw,
+    deleteAccDetails
 }

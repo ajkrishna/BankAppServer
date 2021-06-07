@@ -86,6 +86,12 @@ app.patch('/',(req,res)=>{
 app.delete('/',(req,res)=>{
     res.send("THIS IS A DELETE METHOD");
 });
+app.delete('/deleteAccDetails/:acno',authMiddleware,(req,res)=>{
+    dataService.deleteAccDetails(req.params.acno)
+    .then(result=>{
+        res.status(result.statusCode).json(result)
+       })
+});
 app.listen(3000,()=>{
     console.log("Server started at port 3000");
 })
